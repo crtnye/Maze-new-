@@ -20,12 +20,12 @@ Maze::~Maze()
 
 void Maze::generateFunctionalMaze()
 {
-	fillGrid(grid);
-	digMaze(grid);
-	printMaze(grid);
+	fillGrid();
+	digMaze();
+	printMaze();
 }
 
-void Maze::fillGrid(char grid[NUM_ROWS][NUM_COLS]) //written in class
+void Maze::fillGrid() //written in class
 {
 	for (int row = 0; row < NUM_ROWS; row++)
 	{
@@ -36,18 +36,65 @@ void Maze::fillGrid(char grid[NUM_ROWS][NUM_COLS]) //written in class
 	}
 }
 
-void Maze::digMaze(char grid[NUM_ROWS][NUM_COLS])
+void Maze::findValidDirections(bool &canGoUp, bool &canGoRight, bool &canGoDown, bool &canGoLeft, COORD currentLocation)
+{
+	canGoUp = (currentLocation.Y >= 3) && (grid[currentLocation.Y - 2][currentLocation.X] == MAZE_WALL);
+	canGoRight = (currentLocation.X <= (NUM_COLS - 4)) && (grid[currentLocation.Y][currentLocation.X + 2] == MAZE_WALL);
+	canGoDown = (currentLocation.Y <= (NUM_ROWS - 4)) && (grid[currentLocation.Y + 2][currentLocation.X] == MAZE_WALL);
+	canGoLeft = (currentLocation.X >= 3) && (grid[currentLocation.Y][currentLocation.X - 2] == MAZE_WALL);
+}
+
+void Maze::chooseAndMoveADirection(bool canGoUp, bool canGoRight, bool canGoDown, bool canGoLeft, 
+	COORD &currentLocation, bool &directionFound)
+{
+	int direction = rand() % 4;
+	if (direction == 0 && canGoUp == true)
+	{
+		directionFound = true;
+		grid[currentLocation.Y - 1][currentLocation.X] = ' ';
+		grid[currentLocation.Y - 2][currentLocation.X] = ' ';
+		currentLocation.Y = currentLocation.Y - 2;
+	}
+	else if (direction == 1 && canGoRight == true)
+	{
+		directionFound = true;
+		grid[currentLocation.Y][currentLocation.X + 1] = ' ';
+		grid[currentLocation.Y][currentLocation.X + 2] = ' ';
+		currentLocation.X = currentLocation.X + 2;
+	}
+	else if (direction == 2 && canGoDown == true)
+	{
+		directionFound = true;
+		grid[currentLocation.Y + 1][currentLocation.X] = ' ';
+		grid[currentLocation.Y + 2][currentLocation.X] = ' ';
+		currentLocation.Y = currentLocation.Y + 2;
+	}
+	else if (direction == 3 && canGoLeft == true)
+	{
+		directionFound = true;
+		grid[currentLocation.Y][currentLocation.X - 1] = ' ';
+		grid[currentLocation.Y][currentLocation.X - 2] = ' ';
+		currentLocation.X = currentLocation.X - 2;
+	}
+}
+
+void Maze::backtrack(COORD &currentLocation, stack<COORD> &locations)
+{
+	currentLocation = locations.top();
+	locations.pop();
+}
+
+void Maze::digMaze()
 {
 	std::stack<COORD> locations;
 	COORD currentLocation;
-	currentLocation = start = markMazeStart();
+	currentLocation = start = getMazeStart();
+	grid[start.Y][start.X] = 'S';
 
 	do
 	{
-		bool canGoUp = currentLocation.Y >= 3 && (grid[currentLocation.Y - 2][currentLocation.X] == MAZE_WALL);
-		bool canGoRight = currentLocation.X <= NUM_COLS - 4 && (grid[currentLocation.Y][currentLocation.X + 2] == MAZE_WALL);
-		bool canGoDown = currentLocation.Y >= NUM_ROWS - 4 && (grid[currentLocation.Y + 2][currentLocation.X] == MAZE_WALL);
-		bool canGoLeft = currentLocation.X >= 3 && (grid[currentLocation.Y][currentLocation.X - 2] == MAZE_WALL);
+		bool canGoUp, canGoRight, canGoDown, canGoLeft;
+		findValidDirections(canGoUp, canGoRight, canGoDown, canGoLeft, currentLocation);
 
 		if (canGoUp == true || canGoRight == true || canGoDown == true || canGoLeft == true)
 		{
@@ -56,50 +103,23 @@ void Maze::digMaze(char grid[NUM_ROWS][NUM_COLS])
 
 			do
 			{
-				int direction = rand() % 4;
-				if (direction == 0 && canGoUp == true)
-				{
-					directionFound = true;
-					grid[currentLocation.Y - 1][currentLocation.X] = MAZE_WALL;
-					grid[currentLocation.Y - 2][currentLocation.X] = MAZE_WALL;
-					currentLocation.Y = currentLocation.Y - 2;
-				}
-				else if (direction == 1 && canGoRight == true)
-				{
-					directionFound = true;
-					grid[currentLocation.Y][currentLocation.X + 1] = MAZE_WALL;
-					grid[currentLocation.Y][currentLocation.X + 2] = MAZE_WALL;
-					currentLocation.X = currentLocation.X + 2;
-				}
-				else if (direction == 2 && canGoDown == true)
-				{
-					directionFound = true;
-					grid[currentLocation.Y + 1][currentLocation.X] = MAZE_WALL;
-					grid[currentLocation.Y + 2][currentLocation.X] = MAZE_WALL;
-					currentLocation.Y = currentLocation.Y + 2;
-
-				}
-				else if (direction == 3 && canGoLeft == true)
-				{
-					directionFound = true;
-					grid[currentLocation.Y][currentLocation.X - 1] = MAZE_WALL;
-					grid[currentLocation.Y][currentLocation.X - 2] = MAZE_WALL;
-					currentLocation.X = currentLocation.X - 2;
-				}
-			} while (directionFound = false);
-
+				chooseAndMoveADirection(canGoUp, canGoRight, canGoDown, canGoLeft, currentLocation, directionFound);
+			} while (directionFound == false);
 		}
-		else if (locations.empty())
+		else
 		{
-			currentLocation = locations.top();
-			locations.pop();
+			if (!locations.empty())
+			{
+				backtrack(currentLocation, locations);
+			}
 		}
-	} while (locations.empty());
-	finish = markMazeFinish();
+	} while (!locations.empty());
+	finish = getMazeFinish();
+	grid[finish.Y][finish.X] = 'F';
 }
 
 
-void Maze::printMaze(char grid[NUM_ROWS][NUM_COLS])
+void Maze::printMaze()
 {
 	for (int row = 0; row < NUM_ROWS; row++)
 	{
@@ -111,37 +131,39 @@ void Maze::printMaze(char grid[NUM_ROWS][NUM_COLS])
 	}
 }
 
-
-COORD Maze::markMazeStart()
+COORD Maze::getMazeStart()
 {
 	COORD start;
 	srand(time(NULL));
 	do
 	{
 		start.X = rand() % NUM_COLS;
-	} while (start.X % 2 != 0);
+	} while (start.X % 2 == 0);
 
 	do
 	{
-		start.Y = rand() % NUM_COLS;
-	} while (start.Y % 2 != 0);
+		start.Y = rand() % NUM_ROWS;
+	} while (start.Y % 2 == 0);
 
 	return start;
 }
 
-COORD Maze::markMazeFinish()
+COORD Maze::getMazeFinish()
 {
 	COORD finish;
 	srand(time(NULL));
 	do
 	{
-		finish.X = rand() % NUM_COLS;
-	} while (finish.X % 2 != 0 && grid[finish.Y][finish.X] == MAZE_WALL);
+		do
+		{
+			finish.X = rand() % NUM_COLS;
+		} while (finish.X % 2 == 0);
 
-	do
-	{
-		finish.Y = rand() % NUM_COLS;
-	} while (finish.Y % 2 != 0 && grid[finish.Y][finish.X] == MAZE_WALL);
+		do
+		{
+			finish.Y = rand() % NUM_ROWS;
+		} while (finish.Y % 2 == 0);
+	} while (grid[finish.Y][finish.X] != ' ');
 
 	return finish;
 }
