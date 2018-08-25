@@ -7,7 +7,6 @@
 using std::cout;
 using std::cin;
 
-
 Maze::Maze()
 {
 
@@ -18,11 +17,12 @@ Maze::~Maze()
 
 }
 
-void Maze::generateFunctionalMaze()
+void Maze::playMaze()
 {
 	fillGrid();
 	digMaze();
 	printMaze();
+	navigateMaze();
 }
 
 void Maze::fillGrid() //written in class
@@ -100,7 +100,6 @@ void Maze::digMaze()
 		{
 			locations.push(currentLocation);
 			bool directionFound = false;
-
 			do
 			{
 				chooseAndMoveADirection(canGoUp, canGoRight, canGoDown, canGoLeft, currentLocation, directionFound);
@@ -125,9 +124,23 @@ void Maze::printMaze()
 	{
 		for (int column = 0; column < NUM_COLS; column++)
 		{
+			addColor(row, column);
 			cout << grid[row][column];
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
 		}
 		cout << std::endl;
+	}
+}
+
+void Maze::addColor(int row, int column)
+{
+	if (row == start.Y && column == start.X)
+	{
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+	}
+	else if (row == finish.Y && column == finish.X)
+	{
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
 	}
 }
 
@@ -168,52 +181,72 @@ COORD Maze::getMazeFinish()
 	return finish;
 }
 
-void Maze::moveAvatar(COORD newPosition)
+void Maze::changePosition(int key, COORD currentPosition, COORD &newPosition)
 {
-	cout << "";
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), newPosition);
-	cout << avatar;
+	if (key == VK_LEFT && grid[currentPosition.Y][currentPosition.X - 1] != MAZE_WALL)
+	{
+		newPosition.X--;
+	}
+	else if (key == VK_RIGHT && grid[currentPosition.Y][currentPosition.X + 1] != MAZE_WALL)
+	{
+		newPosition.X++;
+	}
+	else if (key == VK_UP && grid[currentPosition.Y - 1][currentPosition.X] != MAZE_WALL)
+	{
+		newPosition.Y--;
+	}
+	else if (key == VK_DOWN && grid[currentPosition.Y + 1][currentPosition.X] != MAZE_WALL)
+	{
+		newPosition.Y++;
+	}
 }
 
-void Maze::playMaze() //needs modification
+void Maze::moveAvatar(COORD &currentPosition, COORD newPosition)
 {
-	
-	int key = getKey();
+	if (grid[currentPosition.Y][currentPosition.X] == 'S')
+	{
+		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), currentPosition);
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+		cout << 'S';
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+	}
+	else
+	{
+		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), currentPosition);
+		cout << ' ';
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+	}
 
-	COORD currentPosition;
-	currentPosition.Y = finish.Y;
-	currentPosition.X = finish.X;
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), newPosition);
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 14);
+	cout << avatar;
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 7);
+	currentPosition = newPosition;
+}
+
+void Maze::navigateMaze()
+{
+	COORD currentPosition = start;
+	COORD newPosition = currentPosition;
 
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), currentPosition);
-	cout << avatar;
+	int key = getKey();
 
-	while (currentPosition.X != finish.X && currentPosition.Y != finish.Y)
+	while (currentPosition.X != finish.X || currentPosition.Y != finish.Y)
 	{
-		if (key == VK_LEFT && currentPosition.X > 0) 
-		{
-			currentPosition.X--;
-			moveAvatar(currentPosition);
-		}
-		else if (key == VK_RIGHT && currentPosition.X < NUM_COLS) 
-		{
-			currentPosition.X++;
-			moveAvatar(currentPosition);
-		}
-		else if (key == VK_UP && currentPosition.Y > 0) 
-		{
-			currentPosition.Y--;
-			moveAvatar(currentPosition);
-		}
-		else if (key == VK_DOWN && currentPosition.Y < NUM_ROWS) 
-		{
-			currentPosition.Y++;
-			moveAvatar(currentPosition);
-		}
+		changePosition(key, currentPosition, newPosition);
+		moveAvatar(currentPosition, newPosition);
 
-		COORD newCoord = {currentPosition.X, currentPosition.Y};
-		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), newCoord);
-		cout << MAZE_WALL;
-		key = getKey();
+		if (currentPosition.X == finish.X && currentPosition.Y == finish.Y)
+		{
+			COORD bottom = {0, NUM_ROWS};
+			SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), bottom);
+			cout << "Congratulations, you solved the maze!" << std::endl;
+		}
+		else
+		{
+			key = getKey();
+		}
 	}
 }
 

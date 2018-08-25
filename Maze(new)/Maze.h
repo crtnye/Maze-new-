@@ -1,25 +1,17 @@
 #pragma once
 #include<stack>
 #include<Windows.h>
-#include<vld.h>
 
 using std::stack;
 
-const int NUM_ROWS = 11; //must be an odd number
-const int NUM_COLS = 11; //must be an odd number
+const int NUM_ROWS = 7; //must be an odd number
+const int NUM_COLS = 13; //must be an odd number
 const char MAZE_WALL = (char)219;
-
-//COORD or another location data type
-struct Position
-{
-	int row;
-	int column;
-};
 
 class Maze
 {
 public:
-	void generateFunctionalMaze(); //calls all of the private functions to set up maze
+	void playMaze(); //calls all of the private functions to set up and play maze
 	Maze();
 	~Maze();
 
@@ -36,10 +28,12 @@ private:
 	void chooseAndMoveADirection(bool canGoUp, bool canGoRight, bool canGoDown, bool canGoLeft,
 		COORD &currentLocation, bool &directionFound);
 	void backtrack(COORD &currentLocation, stack<COORD> &locations);
+	void changePosition(int key, COORD currentPosition, COORD &newPosition);
+	void moveAvatar(COORD &currentPosition, COORD newPosition);
 	void printMaze();
+	void addColor(int row, int column);
 	COORD getMazeStart();
 	COORD getMazeFinish();
-	void playMaze();
+	void navigateMaze();
 	int getKey();
-	void moveAvatar(COORD);
 };
