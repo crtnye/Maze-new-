@@ -17,6 +17,7 @@ Maze::~Maze()
 {
 
 }
+
 Maze Maze::generateFunctionalMaze()
 {
 	fillGrid(grid);
