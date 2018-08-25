@@ -18,13 +18,12 @@ struct Position
 class Maze
 {
 public:
-	Maze generateFunctionalMaze(); //calls all of the private functions to set up maze
+	void generateFunctionalMaze(); //calls all of the private functions to set up maze
 	Maze();
 	~Maze();
 
 private:
 	char grid[NUM_ROWS][NUM_COLS];
-	//a stack to use for the maze digging
 	COORD start;
 	COORD finish;
 	char avatar = 'P';
@@ -32,9 +31,9 @@ private:
 
 	void fillGrid(char[NUM_ROWS][NUM_COLS]);
 	void digMaze(char[NUM_ROWS][NUM_COLS]);
-	void printMaze();
+	void printMaze(char[NUM_ROWS][NUM_COLS]);
 	COORD markMazeStart();
-	void markMazeFinish();
+	COORD markMazeFinish();
 	void playMaze();
 	int getKey();
 	void moveAvatar(COORD);

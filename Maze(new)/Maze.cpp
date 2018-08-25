@@ -18,11 +18,11 @@ Maze::~Maze()
 
 }
 
-Maze Maze::generateFunctionalMaze()
+void Maze::generateFunctionalMaze()
 {
 	fillGrid(grid);
 	digMaze(grid);
-	printMaze();
+	printMaze(grid);
 }
 
 void Maze::fillGrid(char grid[NUM_ROWS][NUM_COLS]) //written in class
@@ -40,7 +40,7 @@ void Maze::digMaze(char grid[NUM_ROWS][NUM_COLS])
 {
 	std::stack<COORD> locations;
 	COORD currentLocation;
-	currentLocation = markMazeStart();
+	currentLocation = start = markMazeStart();
 
 	do
 	{
@@ -53,34 +53,53 @@ void Maze::digMaze(char grid[NUM_ROWS][NUM_COLS])
 		{
 			locations.push(currentLocation);
 			bool directionFound = false;
+
 			do
 			{
 				int direction = rand() % 4;
 				if (direction == 0 && canGoUp == true)
 				{
 					directionFound = true;
-
+					grid[currentLocation.Y - 1][currentLocation.X] = MAZE_WALL;
+					grid[currentLocation.Y - 2][currentLocation.X] = MAZE_WALL;
+					currentLocation.Y = currentLocation.Y - 2;
 				}
 				else if (direction == 1 && canGoRight == true)
 				{
 					directionFound = true;
+					grid[currentLocation.Y][currentLocation.X + 1] = MAZE_WALL;
+					grid[currentLocation.Y][currentLocation.X + 2] = MAZE_WALL;
+					currentLocation.X = currentLocation.X + 2;
 				}
 				else if (direction == 2 && canGoDown == true)
 				{
 					directionFound = true;
+					grid[currentLocation.Y + 1][currentLocation.X] = MAZE_WALL;
+					grid[currentLocation.Y + 2][currentLocation.X] = MAZE_WALL;
+					currentLocation.Y = currentLocation.Y + 2;
+
 				}
 				else if (direction == 3 && canGoLeft == true)
 				{
 					directionFound = true;
+					grid[currentLocation.Y][currentLocation.X - 1] = MAZE_WALL;
+					grid[currentLocation.Y][currentLocation.X - 2] = MAZE_WALL;
+					currentLocation.X = currentLocation.X - 2;
 				}
 			} while (directionFound = false);
 
 		}
+		else if (locations.empty())
+		{
+			currentLocation = locations.top();
+			locations.pop();
+		}
 	} while (locations.empty());
+	finish = markMazeFinish();
 }
 
 
-void Maze::printMaze()
+void Maze::printMaze(char grid[NUM_ROWS][NUM_COLS])
 {
 	for (int row = 0; row < NUM_ROWS; row++)
 	{
@@ -110,9 +129,21 @@ COORD Maze::markMazeStart()
 	return start;
 }
 
-void Maze::markMazeFinish()
+COORD Maze::markMazeFinish()
 {
-	//set finish variable
+	COORD finish;
+	srand(time(NULL));
+	do
+	{
+		finish.X = rand() % NUM_COLS;
+	} while (finish.X % 2 != 0 && grid[finish.Y][finish.X] == MAZE_WALL);
+
+	do
+	{
+		finish.Y = rand() % NUM_COLS;
+	} while (finish.Y % 2 != 0 && grid[finish.Y][finish.X] == MAZE_WALL);
+
+	return finish;
 }
 
 void Maze::moveAvatar(COORD newPosition)
@@ -128,8 +159,8 @@ void Maze::playMaze() //needs modification
 	int key = getKey();
 
 	COORD currentPosition;
-	currentPosition.Y = start.Y;
-	currentPosition.X = start.X;
+	currentPosition.Y = finish.Y;
+	currentPosition.X = finish.X;
 
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), currentPosition);
 	cout << avatar;

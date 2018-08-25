@@ -1,4 +1,7 @@
-﻿  Maze.cpp
-c:\users\redan\documents\visual studio 2017\projects\maze(new)\maze(new)\maze.cpp(65): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-c:\users\redan\documents\visual studio 2017\projects\maze(new)\maze(new)\maze.cpp(25): error C4716: 'Maze::generateFunctionalMaze': must return a value
-c:\users\redan\documents\visual studio 2017\projects\maze(new)\maze(new)\maze.cpp(69): error C4716: 'Maze::markMazeStart': must return a value
+﻿  Main.cpp
+  Maze.cpp
+c:\users\redan\documents\visual studio 2017\projects\maze(new)\maze(new)\maze.cpp(118): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\redan\documents\visual studio 2017\projects\maze(new)\maze(new)\maze.cpp(135): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  Generating Code...
+c:\users\redan\documents\visual studio 2017\projects\maze(new)\maze(new)\maze.cpp(139): warning C4700: uninitialized local variable 'finish' used
+  Maze(new).vcxproj -> C:\Users\redan\documents\visual studio 2017\Projects\Maze(new)\x64\Debug\Maze(new).exe
