@@ -128,6 +128,7 @@ void Maze::printMaze()
 	}
 }
 
+//makes the start and end symbols a color of choice
 void Maze::addColor(int row, int column)
 {
 	if (row == start.Y && column == start.X)
@@ -219,6 +220,7 @@ void Maze::moveAvatar(COORD &currentPosition, COORD newPosition)
 	currentPosition = newPosition;
 }
 
+//handles the user's maze navigation
 void Maze::navigateMaze()
 {
 	COORD currentPosition = start;
