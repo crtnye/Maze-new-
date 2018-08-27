@@ -1,31 +1,29 @@
 #include<iostream>
-#include"Maze.h"
 #include<stack>
 #include<cstdlib>
 #include<ctime>
+#include"Maze.h"
 
 using std::cout;
 using std::cin;
 
 Maze::Maze()
 {
-
 }
 
 Maze::~Maze()
 {
-
 }
 
 void Maze::playMaze()
 {
-	fillGrid();
+	initializeGrid();
 	digMaze();
 	printMaze();
 	navigateMaze();
 }
 
-void Maze::fillGrid() //written in class
+void Maze::initializeGrid()
 {
 	for (int row = 0; row < NUM_ROWS; row++)
 	{
@@ -87,8 +85,7 @@ void Maze::backtrack(COORD &currentLocation, stack<COORD> &locations)
 void Maze::digMaze()
 {
 	std::stack<COORD> locations;
-	COORD currentLocation;
-	currentLocation = start = getMazeStart();
+	COORD currentLocation = start = getMazeStart();
 	grid[start.Y][start.X] = 'S';
 
 	do
@@ -116,7 +113,6 @@ void Maze::digMaze()
 	finish = getMazeFinish();
 	grid[finish.Y][finish.X] = 'F';
 }
-
 
 void Maze::printMaze()
 {
@@ -152,7 +148,6 @@ COORD Maze::getMazeStart()
 	{
 		start.X = rand() % NUM_COLS;
 	} while (start.X % 2 == 0);
-
 	do
 	{
 		start.Y = rand() % NUM_ROWS;
@@ -249,7 +244,6 @@ void Maze::navigateMaze()
 		}
 	}
 }
-
 
 int Maze::getKey()
 {

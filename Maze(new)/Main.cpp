@@ -8,6 +8,4 @@ void main()
 {
 	Maze testMaze;
 	testMaze.playMaze();
-
-
 }
